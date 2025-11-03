@@ -16,7 +16,7 @@ timezone: America/Toronto
 
 title: Cronch # the main title
 
-tagline: Electrical Engineering student / PCB Designer # it will display as the subtitle
+tagline: EE Student / PCB Designer # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
