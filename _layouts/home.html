@@ -1,0 +1,31 @@
+---
+layout: page
+---
+
+<!-- mini about -->
+<section id="about-top" class="mb-4">
+  <h1 class="h2 mb-2">Projects</h1>
+  <p class="mb-0">
+    Hardware, embedded, and PCB design notes. This site pulls recent repos and boards and lists them below.
+    Focus: KiCad boards, ESP32/MCU work, power/EMC test fixtures, and small tooling for device bring-up.
+  </p>
+</section>
+
+{% assign posts = site.posts | sort: "date" | reverse %}
+
+<section id="projects">
+  {% for post in posts %}
+    <article class="mb-4">
+      <h2 class="h4 mb-1">
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </h2>
+      <p class="text-muted small">
+        {{ post.date | date: "%Y-%m-%d" }}
+        {% if post.repo %} • <a href="{{ post.repo }}">repo</a>{% endif %}
+      </p>
+      {% if post.excerpt %}
+        <p>{{ post.excerpt | strip_html | truncate: 160 }}</p>
+      {% endif %}
+    </article>
+  {% endfor %}
+</section>
