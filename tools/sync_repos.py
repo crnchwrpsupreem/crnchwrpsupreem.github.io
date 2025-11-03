@@ -1,14 +1,21 @@
-import os, requests, re, pathlib, sys
+import os
+import requests
+import re
+import pathlib
+import sys
 from datetime import datetime
 
+# read from env
 USER = os.environ.get("GH_USER")
 TOKEN = os.environ.get("GH_TOKEN")
 if not USER or not TOKEN:
     print("GH_USER or GH_TOKEN missing")
     sys.exit(1)
 
-SITE_REPO = f"{USER}.github.io"
+USER_L = USER.lower()
+SITE_REPO = f"{USER_L}.github.io"  # skip the site repo
 
+# GitHub session
 session = requests.Session()
 session.headers.update({
     "Authorization": f"token {TOKEN}",
@@ -16,11 +23,16 @@ session.headers.update({
 })
 
 def get_repos():
-    repos, page = [], 1
+    repos = []
+    page = 1
     while True:
         r = session.get(
             "https://api.github.com/user/repos",
-            params={"per_page": 100, "page": page, "affiliation": "owner"}
+            params={
+                "per_page": 100,
+                "page": page,
+                "affiliation": "owner"
+            }
         )
         r.raise_for_status()
         data = r.json()
@@ -38,15 +50,18 @@ def slugify(name: str) -> str:
 posts_dir = pathlib.Path("_posts")
 posts_dir.mkdir(exist_ok=True)
 
-updated = 0
 created = 0
+updated = 0
 
 for repo in get_repos():
     name = repo["name"]
-    if name == SITE_REPO:
+    # skip the pages repo itself
+    if name.lower() == SITE_REPO:
         continue
 
     slug = slugify(name)
+
+    # use repo creation date as stable Jekyll date
     created_at_raw = repo.get("created_at")
     if created_at_raw:
         created_date = created_at_raw[:10]  # YYYY-MM-DD
@@ -72,7 +87,7 @@ last_github_update: {pushed_at}
 
     if post_path.exists():
         old = post_path.read_text(encoding="utf-8")
-        # only rewrite if GitHub says repo was updated
+        # only update if GitHub says the repo changed
         if pushed_at and pushed_at not in old:
             post_path.write_text(content, encoding="utf-8")
             updated += 1

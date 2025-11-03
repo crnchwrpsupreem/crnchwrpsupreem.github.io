@@ -1,10 +1,13 @@
 name: Sync GitHub repos to posts
 
+permissions:
+  contents: write     # <-- lets this workflow push
+
 on:
-  push:               # run when you push to this repo
+  push:
     branches: [ main ]
-  workflow_dispatch:  # run manually from Actions tab
-  schedule:           # run every day at 06:00 UTC
+  workflow_dispatch:
+  schedule:
     - cron: "0 6 * * *"
 
 jobs:
@@ -20,13 +23,15 @@ jobs:
 
       - name: Run generator
         env:
-          GH_USER: CRNCHWRPSUPREEM   # your username
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_USER: CRNCHWRPSUPREEM            # your username
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}   # PAT you made
         run: |
           pip install requests
           python tools/sync_repos.py
 
       - name: Commit and push if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # default repo token, now has write
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
